@@ -48,7 +48,7 @@ const Tutorial = () => (
 
     <div className={styles.quote}>
       <pre>cond</pre>
-      <p>Consume three values (bool, phrase1, phrase2) from the stack. If bool is true,
+      <p>Consume three values (phrase2, phrase1, bool) from the stack. If bool is true,
         evaluate phrase1, otherwise evaluate phrase2.
       </p>
     </div>

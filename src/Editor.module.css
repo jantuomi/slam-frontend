@@ -5,3 +5,15 @@
 .error {
   color: var(--red)
 }
+
+.examples {
+  margin-bottom: 20px;
+}
+
+:global(.ace_gutter) {
+  z-index: 0;
+}
+
+:global(#react-select-3-listbox) {
+  color: var(--dark-grey);
+}
