@@ -1,43 +1,40 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useSnippets } from "./api"
+import styles from "./App.module.css"
+import icon from "./favicon.png"
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const snippets = useSnippets()
+
+  const renderSnippets = () => {
+    if (snippets.type === "failed") {
+      return <div className={styles.error}>
+        Unexpected error loading snippets. See console for details.
+      </div>
+    }
+
+    if (snippets.type === "loading") {
+      return <div>Loading snippets...</div>
+    }
+
+    return snippets.data.map((snippet) =>
+      <div key={snippet.id}>{snippet.title}</div>,
+    )
+  }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
+    <div className={styles.app}>
+      <header className={styles.header}>
+        <div className={styles.iconRow}>
+          <img src={icon} />
+          <strong>SLAM</strong>
+        </div>
+        <div className={styles.sloganRow}>
+          <small>A Mere Stack Language</small>
+        </div>
       </header>
+      <div>
+        {renderSnippets()}
+      </div>
     </div>
   )
 }
