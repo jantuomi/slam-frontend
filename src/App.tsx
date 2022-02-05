@@ -1,24 +1,26 @@
-import { useSnippets } from "./api"
+import { useExamples } from "./api"
 import styles from "./App.module.css"
+import Editor from "./Editor"
+import Tutorial from "./Tutorial"
 import icon from "./favicon.png"
 
 const App = () => {
-  const snippets = useSnippets()
+  const examples = useExamples()
 
-  const renderSnippets = () => {
-    if (snippets.type === "failed") {
-      return <div className={styles.error}>
-        Unexpected error loading snippets. See console for details.
-      </div>
+  const renderExamples = () => {
+    switch (examples.type) {
+      case "not_yet_requested":
+      case "loading":
+        return <div>Loading examples...</div>
+      case "failed":
+        return <div className={styles.error}>
+          An unexpected error occurred while loading examples. See console for details.
+        </div>
+      case "success":
+        return examples.data.map((example) =>
+          <div key={example.id}>{example.title}</div>,
+        )
     }
-
-    if (snippets.type === "loading") {
-      return <div>Loading snippets...</div>
-    }
-
-    return snippets.data.map((snippet) =>
-      <div key={snippet.id}>{snippet.title}</div>,
-    )
   }
 
   return (
@@ -32,9 +34,11 @@ const App = () => {
           <small>A Mere Stack Language</small>
         </div>
       </header>
-      <div>
-        {renderSnippets()}
+      <div className={styles.examples}>
+        {renderExamples()}
       </div>
+      <div className={styles.editor}><Editor /></div>
+      <div className={styles.tutorial}><Tutorial /></div>
     </div>
   )
 }

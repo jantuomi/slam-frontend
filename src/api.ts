@@ -10,27 +10,31 @@ const fetcher = (path: string) => fetch(`${API_URL}${path}`)
     throw err
   })
 
-interface Snippet {
+interface Example {
   id: string
   title: string
   content: string
 }
 
-interface APISuccess<D> {
+export interface APISuccess<D> {
   readonly type: "success"
   data: D
 }
 
-interface APILoading {
+export interface APILoading {
   readonly type: "loading"
 }
 
-interface APIFailed<E> {
+export interface APIFailed<E> {
   readonly type: "failed"
   error: E
 }
 
-type APIResult<D, E> = APISuccess<D> | APILoading | APIFailed<E>
+export interface APINotYetRequested {
+  readonly type: "not_yet_requested"
+}
+
+export type APIResult<D, E> = APISuccess<D> | APILoading | APIFailed<E> | APINotYetRequested
 
 const mapSWRResult = <D, E>({ data, error }: SWRResponse<D, E>): APIResult<D, E> => {
   if (error !== undefined) {
@@ -45,6 +49,31 @@ const mapSWRResult = <D, E>({ data, error }: SWRResponse<D, E>): APIResult<D, E>
   return { type: "success", data }
 }
 
-export const useSnippets = () => mapSWRResult<Snippet[], Error>(
-  useSWR("/snippets", fetcher),
+const postRequest = async <D, E>(path: string, body: any, opts?: any): Promise<APIResult<D, E>> => {
+  const url = `${API_URL}${path}`
+  const body_ = typeof body === "string" ? body : JSON.stringify(body)
+  try {
+    const resp = await fetch(url, { method: "POST", body: body_, headers: {
+      "Content-Type": "application/json",
+    }, ...opts })
+
+    if (resp.status >= 400) {
+      throw new Error(`${url} responded with ${resp.status}: ${resp.text}`)
+    }
+    const data = await resp.json()
+    return { type: "success", data }
+  } catch (err: any) {
+    console.error(`An error occurred when POSTing to API path ${path}`)
+    console.error(err)
+    return { type: "failed", error: err }
+  }
+}
+
+export const useExamples = () => mapSWRResult<Example[], Error>(
+  useSWR("/examples", fetcher),
+)
+
+export const submitSource = async (text: string) => postRequest<string, Error>(
+  "/submit",
+  text,
 )

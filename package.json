@@ -7,7 +7,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ace-builds": "1.4.14",
     "react": "^17.0.2",
+    "react-ace": "9.5.0",
     "react-dom": "^17.0.2",
     "swr": "1.2.1"
   },

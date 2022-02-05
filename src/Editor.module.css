@@ -1,0 +1,7 @@
+.runButton {
+  margin-top: 10px;
+}
+
+.error {
+  color: var(--red)
+}

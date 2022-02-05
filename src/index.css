@@ -23,8 +23,24 @@ body {
   padding: 0 10px;
   max-width: 900px;
   text-align: left;
+  font-size: var(--font-s);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+button {
+  border-radius: 0;
+  border: none;
+  outline: none;
+  padding: 5px;
+  margin: 0 -5px;
+  background: var(--dark-grey);
+  color: var(--white);
+  font-size: var(--font-s);
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+button:hover {
+  text-decoration: underline;
 }
