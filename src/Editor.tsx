@@ -5,8 +5,16 @@ import { useState } from "react"
 import styles from "./Editor.module.css"
 import { APIResult, submitSource } from "./api"
 
+const defaultSourceText = `define times2
+    dup +
+    ;
+
+2 times2 .
+-- prints 4
+`
+
 const Editor = () => {
-  const [sourceText, setSourceText] = useState("")
+  const [sourceText, setSourceText] = useState(defaultSourceText)
   const [result, setResult] = useState<APIResult<string, Error>>({ type: "not_yet_requested" })
   const onChange = setSourceText
 
