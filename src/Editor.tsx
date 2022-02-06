@@ -3,7 +3,7 @@ import "ace-builds/src-noconflict/mode-java"
 import "ace-builds/src-noconflict/theme-github"
 import { useState } from "react"
 import styles from "./Editor.module.css"
-import { APIResult, submitSource, useExamples } from "./api"
+import { SubmitResult, submitSource, useExamples } from "./api"
 import Select from "react-select"
 
 const defaultSourceText = `define times2
@@ -17,7 +17,7 @@ const defaultSourceText = `define times2
 const Editor = () => {
   const examples = useExamples()
   const [sourceText, setSourceText] = useState(defaultSourceText)
-  const [result, setResult] = useState<APIResult<string, Error>>({ type: "not_yet_requested" })
+  const [result, setResult] = useState<SubmitResult>({ type: "not_yet_requested" })
   const onChange = setSourceText
 
   const executeCode = async (text: string) => {
@@ -69,20 +69,24 @@ const Editor = () => {
             Failed to run code on the server. See console for details.
           </div>
         )
-      case "success":
+      case "success": {
+        const text = `Output:\n${result.data}`
         return (
           <AceEditor
             mode=""
             theme="github"
             onChange={() => undefined}
-            value={result.data}
+            value={text}
             name="results"
             editorProps={{ $blockScrolling: true }}
             width="100%"
+            minLines={10}
+            maxLines={10}
             fontSize={16}
             readOnly
           />
         )
+      }
     }
   }
 

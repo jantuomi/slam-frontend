@@ -1,8 +1,10 @@
 import useSWR, { SWRResponse } from "swr"
+import { RunnerApiSubmitRequest, RunnerApiSubmitResponse } from "slam-types"
 
-const API_URL = import.meta.env.VITE_API_URL
+const RUNNER_API_URL = String(import.meta.env.VITE_RUNNER_API_URL)
+const EXAMPLE_API_URL = String(import.meta.env.VITE_EXAMPLE_API_URL)
 
-const fetcher = (path: string) => fetch(`${API_URL}${path}`)
+const fetcher = (baseUrl: string) => (path: string) => fetch(`${baseUrl}${path}`)
   .then(res => res.json())
   .catch((err) => {
     console.error(`An error occurred when fetching API path ${path}`)
@@ -49,8 +51,14 @@ const mapSWRResult = <D, E>({ data, error }: SWRResponse<D, E>): APIResult<D, E>
   return { type: "success", data }
 }
 
-const postRequest = async <D, E>(path: string, body: any, opts?: any): Promise<APIResult<D, E>> => {
-  const url = `${API_URL}${path}`
+interface BasePostRequest<R> {
+  baseUrl: string
+  path: string
+  body: R
+}
+
+const postRequest = async <R, D, E>({ baseUrl, path, body }: BasePostRequest<R>, opts?: any): Promise<APIResult<D, E>> => {
+  const url = `${baseUrl}${path}`
   const body_ = typeof body === "string" ? body : JSON.stringify(body)
   try {
     const resp = await fetch(url, { method: "POST", body: body_, headers: {
@@ -70,10 +78,29 @@ const postRequest = async <D, E>(path: string, body: any, opts?: any): Promise<A
 }
 
 export const useExamples = () => mapSWRResult<Example[], Error>(
-  useSWR("/examples", fetcher),
+  useSWR("/examples", fetcher(EXAMPLE_API_URL)),
 )
 
-export const submitSource = async (text: string) => postRequest<string, Error>(
-  "/submit",
-  text,
-)
+export type SubmitResult = APIResult<RunnerApiSubmitResponse.Body["result"], Error>
+
+export const submitSource = async (text: string): Promise<SubmitResult> => {
+  const apiResult = await postRequest<RunnerApiSubmitRequest.Body, RunnerApiSubmitResponse.Body, Error>(
+    {
+      baseUrl: RUNNER_API_URL,
+      path: RunnerApiSubmitRequest.path,
+      body: {
+        source: text,
+      },
+    },
+  )
+
+  switch (apiResult.type) {
+    case "success":
+      return { type: "success", data: apiResult.data.result }
+    case "failed":
+      return { type: "failed", error: apiResult.error }
+    case "not_yet_requested":
+    case "loading":
+      return apiResult
+  }
+}
