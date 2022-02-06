@@ -1,0 +1,5 @@
+.dockerignore
+Dockerfile
+.vscode/
+node_modules/
+.git/
