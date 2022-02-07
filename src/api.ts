@@ -1,5 +1,6 @@
 import useSWR, { SWRResponse } from "swr"
 import { RunnerApi, ExampleApi } from "slam-types"
+import { useState } from "react"
 
 const RUNNER_API_URL = String(import.meta.env.VITE_RUNNER_API_URL)
 const EXAMPLE_API_URL = String(import.meta.env.VITE_EXAMPLE_API_URL)
@@ -77,7 +78,7 @@ export const useExamples = () => mapSWRResult<ExampleApi.ListResponse.Body, Erro
 
 export type SubmitResult = APIResult<RunnerApi.SubmitResponse.Body["result"], Error>
 
-export const submitSource = async (text: string): Promise<SubmitResult> => {
+const postSource = async (text: string): Promise<SubmitResult> => {
   const apiResult = await postRequest<RunnerApi.SubmitRequest.Body, RunnerApi.SubmitResponse.Body, Error>(
     {
       baseUrl: RUNNER_API_URL,
@@ -97,4 +98,37 @@ export const submitSource = async (text: string): Promise<SubmitResult> => {
     case "loading":
       return apiResult
   }
+}
+
+export const useSubmitSource = () => {
+  const [result, setResult] = useState<SubmitResult>({ type: "not_yet_requested" })
+
+  const submitSource = async (text: string) => {
+    try {
+      setResult({ type: "loading" })
+      const apiResult = await postRequest<RunnerApi.SubmitRequest.Body, RunnerApi.SubmitResponse.Body, Error>(
+        {
+          baseUrl: RUNNER_API_URL,
+          path: RunnerApi.SubmitRequest.path,
+          body: {
+            source: text,
+          },
+        },
+      )
+      switch (apiResult.type) {
+        case "success":
+          setResult({ type: "success", data: apiResult.data.result })
+          break
+        case "failed":
+          setResult({ type: "failed", error: apiResult.error })
+          break
+        default:
+          break
+      }
+    } catch (err: any) {
+      setResult({ type: "failed", error: err })
+    }
+  }
+
+  return { result, submitSource }
 }

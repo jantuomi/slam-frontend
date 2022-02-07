@@ -3,7 +3,7 @@ import "ace-builds/src-noconflict/mode-java"
 import "ace-builds/src-noconflict/theme-github"
 import { useEffect, useState } from "react"
 import styles from "./Editor.module.css"
-import { SubmitResult, submitSource, useExamples } from "./api"
+import { useExamples, useSubmitSource } from "./api"
 import Select from "react-select"
 
 const defaultSourceText = `define times2
@@ -17,16 +17,11 @@ const defaultSourceText = `define times2
 const Editor = () => {
   const examples = useExamples()
   const [sourceText, setSourceText] = useState(defaultSourceText)
-  const [result, setResult] = useState<SubmitResult>({ type: "not_yet_requested" })
+  const { result, submitSource } = useSubmitSource()
   const [sourceDirty, setSourceDirty] = useState(false)
   const onChange = (text: string) => {
     setSourceText(text)
     setSourceDirty(true)
-  }
-
-  const executeCode = async (text: string) => {
-    const result = await submitSource(text)
-    setResult(result)
   }
 
   const renderExamples = () => {
@@ -78,8 +73,13 @@ const Editor = () => {
   const renderResults = () => {
     switch (result.type) {
       case "not_yet_requested":
-      case "loading":
         return null
+      case "loading":
+        return (
+          <div>
+            Running...
+          </div>
+        )
       case "failed":
         return (
           <div className={styles.error}>
@@ -137,7 +137,7 @@ const Editor = () => {
           fontSize={16}
         />
       </div>
-      <button id="run-button" className={styles.runButton} onClick={() => executeCode(sourceText)}>
+      <button id="run-button" className={styles.runButton} onClick={() => submitSource(sourceText)}>
         ▶️ Run code on server
       </button>
       <div id="results-editor" className={styles.results}>
