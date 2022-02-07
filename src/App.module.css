@@ -9,6 +9,7 @@
   font-size: var(--font-xxl);
   width: auto;
   margin: auto;
+  margin-bottom: 10px;
 }
 
 .iconRow {

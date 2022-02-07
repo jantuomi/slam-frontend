@@ -42,6 +42,7 @@ const Editor = () => {
           option: (styles: any) => ({
             ...styles,
             cursor: "pointer",
+            color: "#282c34",
           }),
           control: (styles: any) => ({
             ...styles,
