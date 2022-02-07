@@ -12,12 +12,6 @@ const fetcher = (baseUrl: string) => (path: string) => fetch(`${baseUrl}${path}`
     throw err
   })
 
-interface Example {
-  id: string
-  title: string
-  content: string
-}
-
 export interface APISuccess<D> {
   readonly type: "success"
   data: D
@@ -77,7 +71,7 @@ const postRequest = async <R, D, E>({ baseUrl, path, body }: BasePostRequest<R>,
   }
 }
 
-export const useExamples = () => mapSWRResult<Example[], Error>(
+export const useExamples = () => mapSWRResult<ExampleApi.ListResponse.Body, Error>(
   useSWR(ExampleApi.ListRequest.path, fetcher(EXAMPLE_API_URL)),
 )
 

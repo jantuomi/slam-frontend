@@ -35,7 +35,9 @@ const Editor = () => {
           An unexpected error occurred while loading examples. See console for details.
         </div>
       case "success": {
-        const options = examples.data.map(example => ({ value: example.content, label: example.title }))
+        const options = examples.data.examples.map(example => ({
+          value: example.content, label: example.title,
+        }))
         const customStyles = {
           option: (styles: any) => ({
             ...styles,
