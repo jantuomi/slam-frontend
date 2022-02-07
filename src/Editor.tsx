@@ -10,8 +10,8 @@ const defaultSourceText = `define times2
     dup +
     ;
 
-2 times2 .
--- prints 4
+3 times2 .
+-- prints 6
 `
 
 const Editor = () => {
