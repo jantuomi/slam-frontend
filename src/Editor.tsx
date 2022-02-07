@@ -1,7 +1,7 @@
 import AceEditor from "react-ace"
 import "ace-builds/src-noconflict/mode-java"
 import "ace-builds/src-noconflict/theme-github"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import styles from "./Editor.module.css"
 import { SubmitResult, submitSource, useExamples } from "./api"
 import Select from "react-select"
@@ -18,7 +18,11 @@ const Editor = () => {
   const examples = useExamples()
   const [sourceText, setSourceText] = useState(defaultSourceText)
   const [result, setResult] = useState<SubmitResult>({ type: "not_yet_requested" })
-  const onChange = setSourceText
+  const [sourceDirty, setSourceDirty] = useState(false)
+  const onChange = (text: string) => {
+    setSourceText(text)
+    setSourceDirty(true)
+  }
 
   const executeCode = async (text: string) => {
     const result = await submitSource(text)
@@ -29,7 +33,7 @@ const Editor = () => {
     switch (examples.type) {
       case "not_yet_requested":
       case "loading":
-        return <div>Loading examples...</div>
+        return <div id="examples-loading">Loading examples...</div>
       case "failed":
         return <div className={styles.error}>
           An unexpected error occurred while loading examples. See console for details.
@@ -51,9 +55,19 @@ const Editor = () => {
         }
         return (
           <Select
+            id="example-select"
             placeholder="Pick an example code snippet..."
             options={options}
-            onChange={(val) => { setSourceText(val?.value as string) }}
+            onChange={(val) => {
+              let ok = true
+              if (sourceDirty) {
+                ok = window.confirm("Loading an example will discard your changes. Proceed?")
+              }
+              if (ok) {
+                setSourceText(val?.value as string)
+                setSourceDirty(false)
+              }
+            }}
             styles={customStyles}
           />
         )
@@ -93,25 +107,40 @@ const Editor = () => {
     }
   }
 
+  const resetSourceEditor = () => {
+    setSourceText("")
+  }
+
+  // reset source editor content, used in e2e tests
+  useEffect(() => {
+    window.addEventListener("resetSourceEditor", resetSourceEditor)
+
+    return () => {
+      window.removeEventListener("resetSourceEditor", resetSourceEditor)
+    }
+  }, [])
+
   return (
     <>
       <div className={styles.examples}>
         {renderExamples()}
       </div>
-      <AceEditor
-        mode=""
-        theme="github"
-        onChange={onChange}
-        value={sourceText}
-        name="editor"
-        editorProps={{ $blockScrolling: true }}
-        width="100%"
-        fontSize={16}
-      />
-      <button className={styles.runButton} onClick={() => executeCode(sourceText)}>
+      <div id="source-editor">
+        <AceEditor
+          mode=""
+          theme="github"
+          onChange={onChange}
+          value={sourceText}
+          name="editor"
+          editorProps={{ $blockScrolling: true }}
+          width="100%"
+          fontSize={16}
+        />
+      </div>
+      <button id="run-button" className={styles.runButton} onClick={() => executeCode(sourceText)}>
         ▶️ Run code on server
       </button>
-      <div className={styles.results}>
+      <div id="results-editor" className={styles.results}>
         {renderResults()}
       </div>
     </>

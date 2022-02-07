@@ -22,7 +22,7 @@ const Tutorial = () => (
     <p>
       <i>Phrases</i>, roughly equal to Lisp&apos;s quoted S-expressions, are a sequence
       of words that are not immediately evaluated when encountered, but instead put on
-      the stack for later manipulation. Phrases can be used to implement strings or homogenous
+      the stack for later manipulation. Phrases can be used to implement strings or heterogenous
       list structures. Phrases are also the core of conditional expressions, where branches
       of code are only evaluated when a condition is met.
     </p>

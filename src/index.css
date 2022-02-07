@@ -44,3 +44,7 @@ button {
 button:hover {
   text-decoration: underline;
 }
+
+a {
+  color: var(--white);
+}
