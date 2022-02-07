@@ -15,7 +15,7 @@
     "swr": "1.2.1"
   },
   "devDependencies": {
-    "slam-types": "git://github.com/jantuomi/slam-types.git#a401431",
+    "slam-types": "git://github.com/jantuomi/slam-types.git#441a72c",
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@typescript-eslint/eslint-plugin": "5.10.2",

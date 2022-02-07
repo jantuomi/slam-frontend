@@ -1,5 +1,5 @@
 import useSWR, { SWRResponse } from "swr"
-import { RunnerApiSubmitRequest, RunnerApiSubmitResponse } from "slam-types"
+import { RunnerApi, ExampleApi } from "slam-types"
 
 const RUNNER_API_URL = String(import.meta.env.VITE_RUNNER_API_URL)
 const EXAMPLE_API_URL = String(import.meta.env.VITE_EXAMPLE_API_URL)
@@ -78,16 +78,16 @@ const postRequest = async <R, D, E>({ baseUrl, path, body }: BasePostRequest<R>,
 }
 
 export const useExamples = () => mapSWRResult<Example[], Error>(
-  useSWR("/examples", fetcher(EXAMPLE_API_URL)),
+  useSWR(ExampleApi.ListRequest.path, fetcher(EXAMPLE_API_URL)),
 )
 
-export type SubmitResult = APIResult<RunnerApiSubmitResponse.Body["result"], Error>
+export type SubmitResult = APIResult<RunnerApi.SubmitResponse.Body["result"], Error>
 
 export const submitSource = async (text: string): Promise<SubmitResult> => {
-  const apiResult = await postRequest<RunnerApiSubmitRequest.Body, RunnerApiSubmitResponse.Body, Error>(
+  const apiResult = await postRequest<RunnerApi.SubmitRequest.Body, RunnerApi.SubmitResponse.Body, Error>(
     {
       baseUrl: RUNNER_API_URL,
-      path: RunnerApiSubmitRequest.path,
+      path: RunnerApi.SubmitRequest.path,
       body: {
         source: text,
       },
