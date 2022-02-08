@@ -87,7 +87,10 @@ const Editor = () => {
           </div>
         )
       case "success": {
-        const text = `Output:\n${result.data}`
+        const apiTimeMillis = (result.data.apiTime / 1000).toFixed(1)
+        const executionTimeMillis = (result.data.executionTime / 1000).toFixed(1)
+        const roundtripTime = (result.data.roundtripTime).toFixed(1)
+        const text = `Output:\n${result.data.result}\nTotal roundtrip time: ${roundtripTime} ms\nServer processing time: ${apiTimeMillis} ms\nExecution time: ${executionTimeMillis} ms`
         return (
           <AceEditor
             mode=""

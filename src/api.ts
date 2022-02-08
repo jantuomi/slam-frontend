@@ -76,35 +76,14 @@ export const useExamples = () => mapSWRResult<ExampleApi.ListResponse.Body, Erro
   useSWR(ExampleApi.ListRequest.path, fetcher(EXAMPLE_API_URL)),
 )
 
-export type SubmitResult = APIResult<RunnerApi.SubmitResponse.Body["result"], Error>
-
-const postSource = async (text: string): Promise<SubmitResult> => {
-  const apiResult = await postRequest<RunnerApi.SubmitRequest.Body, RunnerApi.SubmitResponse.Body, Error>(
-    {
-      baseUrl: RUNNER_API_URL,
-      path: RunnerApi.SubmitRequest.path,
-      body: {
-        source: text,
-      },
-    },
-  )
-
-  switch (apiResult.type) {
-    case "success":
-      return { type: "success", data: apiResult.data.result }
-    case "failed":
-      return { type: "failed", error: apiResult.error }
-    case "not_yet_requested":
-    case "loading":
-      return apiResult
-  }
-}
+export type SubmitResult = APIResult<RunnerApi.SubmitResponse.Body & { roundtripTime: number }, Error>
 
 export const useSubmitSource = () => {
   const [result, setResult] = useState<SubmitResult>({ type: "not_yet_requested" })
 
   const submitSource = async (text: string) => {
     try {
+      const startRoundtripTime = performance.now()
       setResult({ type: "loading" })
       const apiResult = await postRequest<RunnerApi.SubmitRequest.Body, RunnerApi.SubmitResponse.Body, Error>(
         {
@@ -115,10 +94,13 @@ export const useSubmitSource = () => {
           },
         },
       )
+      const endRoundtripTime = performance.now()
+      const roundtripTime = endRoundtripTime - startRoundtripTime
       switch (apiResult.type) {
         case "success":
-          setResult({ type: "success", data: apiResult.data.result })
+          setResult({ type: "success", data: { ...apiResult.data, roundtripTime }})
           break
+
         case "failed":
           setResult({ type: "failed", error: apiResult.error })
           break
